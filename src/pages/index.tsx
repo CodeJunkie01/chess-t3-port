@@ -2,16 +2,17 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import { trpc } from "../utils/trpc";
 import { useEffect, useState } from "react";
-import { setErrorMap } from "zod";
 
 const Home: NextPage = () => {
   const [error, setError] = useState("");
   const [created, setCreated] = useState(false);
   const hello = trpc.useQuery(["example.hello", { text: "from tRPC" }]);
   const allExamples = trpc.useQuery(["example.getAll"]);
+  const [nameField, setNameField] = useState("");
   const createExampleM = trpc.useMutation(["example.createOne"], {
     onSuccess: () => {
       allExamples.refetch();
+      setNameField("");
       setCreated(true);
       console.log(created);
       setTimeout(() => {
@@ -24,10 +25,10 @@ const Home: NextPage = () => {
   });
  
   const createExample = () => {
-    const name = 'John Doe'
-    createExampleM.mutate({name});
-    
+    createExampleM.mutate({name:nameField});
   }
+
+  
 
   return (
     <>
@@ -111,14 +112,17 @@ const Home: NextPage = () => {
           <button onClick={createExample} className="btn btn-primary">test</button>
           {created ? 
               <div className="toast">
-                <div className="alert alert-info">
+                <div className="alert alert-success">
                   <div>
-                    <span>New message arrived.</span>
+                    <span>Successfully created new Name.</span>
                   </div>
                 </div>
               </div> 
               : null
               }
+        </div>
+        <div>
+          <input onChange={e => {setNameField(e.target.value)}} value={nameField}/>
         </div>
       </div>
     </>
